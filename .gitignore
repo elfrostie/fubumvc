@@ -17,3 +17,4 @@ _ReSharper.*
 ~$*
 
 src/FubuMVC.5.1.ReSharper
+*.vs10x
