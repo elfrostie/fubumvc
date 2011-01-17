@@ -35,6 +35,9 @@
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Ionic.Zip">
+      <HintPath>..\..\lib\DotNetZip\Ionic.Zip.dll</HintPath>
+    </Reference>
     <Reference Include="Microsoft.Practices.ServiceLocation, Version=1.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\lib\Common Service Locator\Microsoft.Practices.ServiceLocation.dll</HintPath>
@@ -71,6 +74,14 @@
     <Compile Include="Behaviors\DownloadFileBehavior.cs" />
     <Compile Include="Behaviors\DeserializeJsonBehavior.cs" />
     <Compile Include="Behaviors\InterceptExceptionBehavior.cs" />
+    <Compile Include="Behaviors\RenderStatusCodeBehavior.cs" />
+    <Compile Include="Behaviors\StopwatchBehavior.cs" />
+    <Compile Include="Content\ContentRegistryCache.cs" />
+    <Compile Include="Content\IContentFolderService.cs" />
+    <Compile Include="Content\IContentRegistry.cs" />
+    <Compile Include="Content\FileRouteHandler.cs" />
+    <Compile Include="Content\PackageFolderActivator.cs" />
+    <Compile Include="Content\ScriptGraphConfigurationActivator.cs" />
     <Compile Include="Continuations\ContinuationHandler.cs" />
     <Compile Include="Continuations\FubuContinuation.cs" />
     <Compile Include="Continuations\ContinuationType.cs" />
@@ -79,9 +90,10 @@
     <Compile Include="Continuations\RedirectableHandler.cs" />
     <Compile Include="Diagnostics\AuthorizationWriter.cs" />
     <Compile Include="Diagnostics\DiagnosticHtml.cs" />
-    <Compile Include="Diagnostics\DiagnosticsActionAttribute.cs" />
+    <Compile Include="Diagnostics\FubuDiagnosticsAttribute.cs" />
     <Compile Include="Diagnostics\HtmlWriting\AuthorizationRulesColumn.cs" />
     <Compile Include="Diagnostics\HtmlWriting\ChainColumn.cs" />
+    <Compile Include="Diagnostics\HtmlWriting\ConstraintColumn.cs" />
     <Compile Include="Diagnostics\HtmlWriting\DebugReportTagWriter.cs" />
     <Compile Include="Diagnostics\HtmlWriting\DebugWriter.cs" />
     <Compile Include="Diagnostics\HtmlWriting\DetailsTagWriter.cs" />
@@ -110,6 +122,14 @@
     <Compile Include="Diagnostics\ModelBindingReport.cs" />
     <Compile Include="Diagnostics\HtmlWriting\OutputColumn.cs" />
     <Compile Include="Diagnostics\OutputReport.cs" />
+    <Compile Include="Diagnostics\PackageLoadingWriter.cs" />
+    <Compile Include="Diagnostics\Querying\ActionToken.cs" />
+    <Compile Include="Diagnostics\Querying\AssemblyToken.cs" />
+    <Compile Include="Diagnostics\Querying\EndpointModel.cs" />
+    <Compile Include="Diagnostics\Querying\EndpointToken.cs" />
+    <Compile Include="Diagnostics\Querying\GraphQuery.cs" />
+    <Compile Include="Diagnostics\Querying\RemoteBehaviorGraph.cs" />
+    <Compile Include="Diagnostics\Querying\TypeToken.cs" />
     <Compile Include="Diagnostics\RecordingAuthorizationPolicyExecutor.cs" />
     <Compile Include="Diagnostics\RecordingFubuRequest.cs" />
     <Compile Include="Diagnostics\RecordingObjectResolver.cs" />
@@ -126,9 +146,86 @@
     <Compile Include="Diagnostics\TextWriting\TextReportWriter.cs" />
     <Compile Include="Diagnostics\TimedReport.cs" />
     <Compile Include="EndpointService.cs" />
+    <Compile Include="FubuApplication.cs" />
+    <Compile Include="FubuEnvironment.cs" />
+    <Compile Include="FubuMvcPackages.cs" />
+    <Compile Include="FubuPackageRegistry.cs" />
     <Compile Include="FubuRegistry.DefaultConventions.cs" />
     <Compile Include="FubuRegistry.DefaultServices.cs" />
+    <Compile Include="FubuRegistry.UserInterfaceExpressions.cs" />
+    <Compile Include="IActionSource.cs" />
+    <Compile Include="IFubuRegistryExtension.cs" />
+    <Compile Include="Json\ProjectionService.cs" />
+    <Compile Include="Json\IProjection.cs" />
+    <Compile Include="Json\IProjectionFactory.cs" />
+    <Compile Include="Json\IProjectionSource.cs" />
+    <Compile Include="Json\IValueProjection.cs" />
+    <Compile Include="Json\Projection.cs" />
+    <Compile Include="Json\ProjectionFactory.cs" />
+    <Compile Include="Json\ValueProjection.cs" />
     <Compile Include="OutputDeterminationExpression.cs" />
+    <Compile Include="Packaging\AssemblyFileFinder.cs" />
+    <Compile Include="Packaging\AssemblyFiles.cs" />
+    <Compile Include="Packaging\AssemblyLoader.cs" />
+    <Compile Include="Packaging\AssemblyPackageInfo.cs" />
+    <Compile Include="Packaging\AssemblyPackageLoader.cs" />
+    <Compile Include="Packaging\CreatePackageInput.cs" />
+    <Compile Include="Packaging\Environment\EnvironmentGateway.cs" />
+    <Compile Include="Packaging\Environment\EnvironmentListExtensions.cs" />
+    <Compile Include="Packaging\Environment\EnvironmentProxy.cs" />
+    <Compile Include="Packaging\Environment\EnvironmentRun.cs" />
+    <Compile Include="Packaging\Environment\EnvironmentRunner.cs" />
+    <Compile Include="Packaging\Environment\EnvironmentRunnerException.cs" />
+    <Compile Include="Packaging\Environment\IEnvironment.cs" />
+    <Compile Include="Packaging\Environment\IEnvironmentGateway.cs" />
+    <Compile Include="Packaging\FileSystemExtensions.cs" />
+    <Compile Include="Packaging\FubuMvcPackageFacility.cs" />
+    <Compile Include="Packaging\IAssemblyFileFinder.cs" />
+    <Compile Include="Packaging\IAssemblyLoader.cs" />
+    <Compile Include="Packaging\IAssemblyRegistration.cs" />
+    <Compile Include="Packaging\IBootstrapper.cs" />
+    <Compile Include="Packaging\Environment\IInstaller.cs" />
+    <Compile Include="Packaging\IPackageExploder.cs" />
+    <Compile Include="Packaging\IPackageExploderLogger.cs" />
+    <Compile Include="Packaging\IPackageLogger.cs" />
+    <Compile Include="Packaging\IPackageManifestReader.cs" />
+    <Compile Include="Packaging\IPackagingRuntimeGraphConfigurer.cs" />
+    <Compile Include="Packaging\IZipFile.cs" />
+    <Compile Include="Packaging\IZipFileService.cs" />
+    <Compile Include="Packaging\LambdaActivator.cs" />
+    <Compile Include="Packaging\LambdaBootstrapper.cs" />
+    <Compile Include="Packaging\Environment\LogEntry.cs" />
+    <Compile Include="Packaging\PackageCreator.cs" />
+    <Compile Include="Packaging\PackageExploder.cs" />
+    <Compile Include="Packaging\PackageExploderLogger.cs" />
+    <Compile Include="Packaging\PackageFacility.cs" />
+    <Compile Include="Packaging\IPackageInfo.cs" />
+    <Compile Include="Packaging\IPackageLoader.cs" />
+    <Compile Include="Packaging\IPackageFacility.cs" />
+    <Compile Include="Packaging\IPackageLog.cs" />
+    <Compile Include="Packaging\IPackagingDiagnostics.cs" />
+    <Compile Include="Packaging\PackageInfo.cs" />
+    <Compile Include="Packaging\FileSystemVirtualFile.cs" />
+    <Compile Include="Packaging\FileSystemVirtualPathProvider.cs" />
+    <Compile Include="Packaging\IActivator.cs" />
+    <Compile Include="Packaging\ApplicationManifest.cs" />
+    <Compile Include="Packaging\PackageLoadingConfigurationExtensions.cs" />
+    <Compile Include="Packaging\PackageLogger.cs" />
+    <Compile Include="Packaging\PackageManifest.cs" />
+    <Compile Include="Packaging\PackageManifestReader.cs" />
+    <Compile Include="Packaging\PackageRegistry.cs" />
+    <Compile Include="Packaging\PackageRegistryLog.cs" />
+    <Compile Include="Packaging\PackagingDiagnostics.cs" />
+    <Compile Include="Packaging\PackagingDiagnosticsExtensions.cs" />
+    <Compile Include="Packaging\PackagingRuntimeGraph.cs" />
+    <Compile Include="Packaging\SkipOverForProvenanceAttribute.cs" />
+    <Compile Include="Packaging\StackFrameExtensions.cs" />
+    <Compile Include="Packaging\StreamExtensions.cs" />
+    <Compile Include="Packaging\VirtualPathProviderActivator.cs" />
+    <Compile Include="Packaging\ZipFilePackageReader.cs" />
+    <Compile Include="Packaging\ZipFileService.cs" />
+    <Compile Include="Packaging\ZipFileWrapper.cs" />
+    <Compile Include="Packaging\ZipFolderRequest.cs" />
     <Compile Include="Registration\Conventions\AuthorizationAttributeConvention.cs" />
     <Compile Include="Registration\Conventions\ContinuationHandlerConvention.cs" />
     <Compile Include="Registration\Conventions\DefaultRouteInputTypeBasedUrlPolicy.cs" />
@@ -159,7 +256,7 @@
     <Compile Include="Behaviors\RenderJsonBehavior.cs" />
     <Compile Include="Behaviors\RenderTextBehavior.cs" />
     <Compile Include="Behaviors\ZeroInOneOutActionInvoker.cs" />
-    <Compile Include="Bootstrapping\BootstrappingClasses.cs" />
+    <Compile Include="Bootstrapping\IContainerFacility.cs" />
     <Compile Include="FubuBootstrapper.cs" />
     <Compile Include="FubuRegistry.Expressions.cs" />
     <Compile Include="Registration\BehaviorVisitor.cs" />
@@ -177,6 +274,7 @@
     <Compile Include="Registration\IServiceRegistry.cs" />
     <Compile Include="Registration\Nodes\ContinuationNode.cs" />
     <Compile Include="Registration\Nodes\DeserializeJsonNode.cs" />
+    <Compile Include="Registration\Nodes\IMayHaveInputType.cs" />
     <Compile Include="Registration\Nodes\OutputNode.cs" />
     <Compile Include="Registration\Nodes\RenderTextNode.cs" />
     <Compile Include="Registration\Nodes\UrlCategory.cs" />
@@ -216,6 +314,71 @@
     <Compile Include="Security\IEndPointAuthorizor.cs" />
     <Compile Include="Security\IEndPointAuthorizorFactory.cs" />
     <Compile Include="Security\PrincipalRoles.cs" />
+    <Compile Include="UI\AuthorizationOnPageExtensions.cs" />
+    <Compile Include="UI\Configuration\AccessorDef.cs" />
+    <Compile Include="UI\Configuration\DefaultHtmlConventions.cs" />
+    <Compile Include="UI\Configuration\ElementRequest.cs" />
+    <Compile Include="UI\Configuration\Interfaces.cs" />
+    <Compile Include="UI\Configuration\LambdaElementBuilder.cs" />
+    <Compile Include="UI\Configuration\LambdaElementModifier.cs" />
+    <Compile Include="UI\Configuration\PartialLambdaElementBuilder.cs" />
+    <Compile Include="UI\Diagnostics\ExampleHtmlWriter.cs" />
+    <Compile Include="UI\Diagnostics\RecordingFieldAccessRightsExecutor.cs" />
+    <Compile Include="UI\Extensibility\ContentExtensionGraph.cs" />
+    <Compile Include="UI\Extensibility\ContentExtensions.cs" />
+    <Compile Include="UI\Extensibility\ExtensionsExpression.cs" />
+    <Compile Include="UI\Extensibility\ExtensionShelf.cs" />
+    <Compile Include="UI\Extensibility\FilteredContentExtension.cs" />
+    <Compile Include="UI\Extensibility\IContentExtension.cs" />
+    <Compile Include="UI\Extensibility\LambdaExtension.cs" />
+    <Compile Include="UI\Forms\DefinitionListLabelAndField.cs" />
+    <Compile Include="UI\Forms\FormLineExpression.cs" />
+    <Compile Include="UI\Forms\ILabelAndFieldLayout.cs" />
+    <Compile Include="UI\FubuPageExtensions.cs" />
+    <Compile Include="UI\HtmlConventionRegistry.cs" />
+    <Compile Include="UI\HtmlTagExtensions.cs" />
+    <Compile Include="UI\ImageTag.cs" />
+    <Compile Include="UI\IPartialInvoker.cs" />
+    <Compile Include="UI\Navigation\AuthorizedContextualMenu.cs" />
+    <Compile Include="UI\Navigation\IContextualAction.cs" />
+    <Compile Include="UI\Navigation\IContextualMenu.cs" />
+    <Compile Include="UI\Navigation\MenuItemState.cs" />
+    <Compile Include="UI\Navigation\MenuItemToken.cs" />
+    <Compile Include="UI\PartialExpressionExtensions.cs" />
+    <Compile Include="UI\PartialInvoker.cs" />
+    <Compile Include="UI\Partials\RenderPartialExpression.cs" />
+    <Compile Include="UI\ScriptAndCssPageExtensions.cs" />
+    <Compile Include="UI\Scripts\BasicScriptTagWriter.cs" />
+    <Compile Include="UI\Scripts\IScriptTagWriter.cs" />
+    <Compile Include="UI\Scripts\ScriptDslReader.cs" />
+    <Compile Include="UI\Scripts\ScriptGatherer.cs" />
+    <Compile Include="UI\Scripts\IScript.cs" />
+    <Compile Include="UI\Scripts\IScriptObject.cs" />
+    <Compile Include="UI\Scripts\Script.cs" />
+    <Compile Include="UI\Scripts\ScriptExtension.cs" />
+    <Compile Include="UI\Scripts\ScriptGraph.cs" />
+    <Compile Include="UI\Scripts\ScriptObjectBase.cs" />
+    <Compile Include="UI\Scripts\ScriptRequirements.cs" />
+    <Compile Include="UI\Scripts\ScriptRule.cs" />
+    <Compile Include="UI\Scripts\ScriptSet.cs" />
+    <Compile Include="UI\Security\AccessRight.cs" />
+    <Compile Include="UI\Security\AccessRightExtensions.cs" />
+    <Compile Include="UI\Security\FieldAccessRightsExecutor.cs" />
+    <Compile Include="UI\Security\FieldAccessService.cs" />
+    <Compile Include="UI\Security\IFieldAccessRule.cs" />
+    <Compile Include="UI\ServiceLocatorExtensions.cs" />
+    <Compile Include="UI\ShowEditFieldExpressions.cs" />
+    <Compile Include="UI\Tags\PartialLambdaElementModifier.cs" />
+    <Compile Include="UI\Tags\PartialTagActionExpression.cs" />
+    <Compile Include="UI\Tags\PartialTagFactory.cs" />
+    <Compile Include="UI\Tags\PartialTagFactoryExpression.cs" />
+    <Compile Include="UI\Tags\TagActionExpression.cs" />
+    <Compile Include="UI\Tags\TagFactory.cs" />
+    <Compile Include="UI\Tags\TagFactoryExpression.cs" />
+    <Compile Include="UI\Tags\TagGenerator.cs" />
+    <Compile Include="UI\Tags\TagProfile.cs" />
+    <Compile Include="UI\Tags\TagProfileExpression.cs" />
+    <Compile Include="UI\Tags\TagProfileLibrary.cs" />
     <Compile Include="Urls\ActionUrl.cs" />
     <Compile Include="Registration\Querying\ChainInterrogator.cs" />
     <Compile Include="Urls\UrlRegistry.cs" />
@@ -249,7 +412,6 @@
     <Compile Include="Runtime\InMemoryRequestData.cs" />
     <Compile Include="Runtime\MimeType.cs" />
     <Compile Include="Runtime\FubuRouteHandler.cs" />
-    <Compile Include="LocalizationManager.cs" />
     <Compile Include="Runtime\IOutputWriter.cs" />
     <Compile Include="Security\IPrincipalFactory.cs" />
     <Compile Include="SessionState\IFlash.cs" />
@@ -281,12 +443,17 @@
     <Compile Include="View\ViewPath.cs" />
     <Compile Include="View\WebForms\INeedToKnowAboutParentPage.cs" />
     <Compile Include="View\WebForms\IPartialRenderer.cs" />
+    <Compile Include="View\WebForms\IPartialViewTypeBindingExpression.cs" />
+    <Compile Include="View\WebForms\IPartialViewTypeRegistrationExpression.cs" />
     <Compile Include="View\WebForms\IPartialViewTypeRegistry.cs" />
     <Compile Include="View\WebForms\IWebFormRenderer.cs" />
     <Compile Include="Behaviors\RenderFubuWebFormView.cs" />
     <Compile Include="View\WebForms\IWebFormsControlBuilder.cs" />
     <Compile Include="Security\IAuthenticationContext.cs" />
     <Compile Include="Security\ISecurityContext.cs" />
+    <Compile Include="View\WebForms\PartialViewTypeBindingExpression.cs" />
+    <Compile Include="View\WebForms\PartialViewTypeRegistrationExpression.cs" />
+    <Compile Include="View\WebForms\PartialViewTypeRegistry.cs" />
     <Compile Include="View\WebForms\WebFormExtensions.cs" />
     <Compile Include="View\WebForms\WebFormRenderer.cs" />
     <Compile Include="View\WebForms\WebFormsEndpointPolicy.cs" />
@@ -301,6 +468,10 @@
       <Project>{342B987C-E0A4-4129-958D-8E08084E8A06}</Project>
       <Name>FubuCore</Name>
     </ProjectReference>
+    <ProjectReference Include="..\FubuLocalization\FubuLocalization.csproj">
+      <Project>{05E7BD1E-6AB0-4D6E-91EB-B004AFA1A619}</Project>
+      <Name>FubuLocalization</Name>
+    </ProjectReference>
     <ProjectReference Include="..\HtmlTags\HtmlTags.csproj">
       <Project>{F01C84F2-6E41-404C-AC8D-BF189A9EC05B}</Project>
       <Name>HtmlTags</Name>
@@ -308,6 +479,9 @@
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Diagnostics\diagnostics.css" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="UI\Diagnostics\examples.css" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

@@ -93,6 +93,7 @@ namespace FubuCore.Util
                     if (!_values.ContainsKey(key))
                     {
                         TValue value = _onMissing(key);
+                        _onAddition(value);
                         _values.Add(key, value);
                     }
                 }
@@ -194,6 +195,11 @@ namespace FubuCore.Util
             }
 
             return false;
+        }
+
+        public IDictionary<TKey, TValue> ToDictionary()
+        {
+            return new Dictionary<TKey, TValue>(_values);
         }
     }
 }

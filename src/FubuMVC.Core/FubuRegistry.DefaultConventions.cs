@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Net;
 using FubuCore.Reflection;
+using FubuMVC.Core.Behaviors;
 using FubuMVC.Core.Registration.Conventions;
 using FubuMVC.Core.Registration.Nodes;
 using FubuMVC.Core.Security;
@@ -12,10 +14,7 @@ namespace FubuMVC.Core
     {
         private void setupDefaultConventionsAndPolicies()
         {
-            // Default method filters
-            Actions.IgnoreMethodsDeclaredBy<object>();
-            Actions.IgnoreMethodsDeclaredBy<MarshalByRefObject>();
-            Actions.IgnoreMethodsDeclaredBy<IDisposable>();
+
 
             // Add Behaviors First
             addConvention(graph => _behaviorMatcher.BuildBehaviors(_types, graph));
@@ -31,6 +30,8 @@ namespace FubuMVC.Core
 
             Output.To<RenderHtmlDocumentNode>().WhenTheOutputModelIs<HtmlDocument>();
             Output.To<RenderHtmlTagNode>().WhenTheOutputModelIs<HtmlTag>();
+
+            Output.ToBehavior<RenderStatusCodeBehavior>().WhenTheOutputModelIs<HttpStatusCode>();
 
             Policies.Add<WebFormsEndpointPolicy>();
             Policies.Add<ContinuationHandlerConvention>();

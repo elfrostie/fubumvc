@@ -172,3 +172,25 @@ table.details TH
 .authz-decision {
     font-weight: bold;
 }
+
+.execution-time
+{
+	text-align:right;
+}
+
+.failure
+{
+	background-color: #FFFFAA;
+}
+
+pre.failure
+{
+	font-size:smaller;
+	overflow:scroll;
+}
+
+.log
+{
+	padding-left: 20px;
+}
+

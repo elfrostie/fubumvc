@@ -15,6 +15,16 @@ _ReSharper.*
 *.suo
 *.cache
 ~$*
+*.stresult
+.fubu-alias
+.fubu-includes
 
 src/FubuMVC.5.1.ReSharper
+<<<<<<< HEAD
 *.vs10x
+=======
+editor.htm
+testEditor.css
+TestResult.xml
+history.xml
+>>>>>>> 5ee757e74cc166d05d9f3131b2942b20e818f138

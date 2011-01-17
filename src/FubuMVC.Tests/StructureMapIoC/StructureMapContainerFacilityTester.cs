@@ -5,12 +5,14 @@ using FubuCore;
 using FubuCore.Binding;
 using FubuMVC.Core;
 using FubuMVC.Core.Behaviors;
+using FubuMVC.Core.Packaging;
 using FubuMVC.Core.Registration;
 using FubuMVC.Core.Registration.ObjectGraph;
 using FubuMVC.Core.Runtime;
 using FubuMVC.Core.Urls;
 using FubuMVC.Core.View;
 using FubuMVC.StructureMap;
+using FubuMVC.Tests.Packaging;
 using FubuMVC.Tests.Registration;
 using Microsoft.Practices.ServiceLocation;
 using NUnit.Framework;
@@ -18,6 +20,8 @@ using StructureMap;
 
 namespace FubuMVC.Tests.StructureMapIoC
 {
+    
+
     [TestFixture]
     public class StructureMapContainerFacilityTester
     {
@@ -26,7 +30,9 @@ namespace FubuMVC.Tests.StructureMapIoC
         [SetUp]
         public void SetUp()
         {
-            container = new Container();
+            container = new Container(x => x.For<IFileSystem>().Use<FileSystem>());
+            
+
             graph = new FubuRegistry(x =>
             {
                 x.Route<InputModel>("/area/sub/{Name}/{Age}")
@@ -37,7 +43,14 @@ namespace FubuMVC.Tests.StructureMapIoC
 
                 x.Route<InputModel>("/area/sub3/{Name}/{Age}")
                     .Calls<TestController>(c => c.AnotherAction(null)).OutputToJson();
+
                 x.Models.ConvertUsing<ExampleConverter>().ConvertUsing<ExampleConverter2>();
+            
+            
+                x.Services(s => s.AddService<IActivator>(new StubActivator()));
+                x.Services(s => s.AddService<IActivator>(new StubActivator()));
+                x.Services(s => s.AddService<IActivator>(new StubActivator()));
+            
             }).BuildGraph();
 
             facility = new StructureMapContainerFacility(container);
@@ -78,6 +91,12 @@ namespace FubuMVC.Tests.StructureMapIoC
         private BehaviorGraph graph;
         private IBehaviorFactory factory;
         private StructureMapContainerFacility facility;
+
+        [Test]
+        public void can_return_all_the_registered_activators_smoke_test()
+        {
+            facility.GetAllActivators().Count().ShouldEqual(4);
+        }
 
         [Test]
         public void each_IActionBehavior_is_wrapped_with_a_nested_container_behavior()

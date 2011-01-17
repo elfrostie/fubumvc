@@ -1,5 +1,5 @@
 COMPILE_TARGET = ENV['config'].nil? ? "debug" : ENV['config']
-require "./build_support/BuildUtils.rb"
+require File.dirname(__FILE__) + "/build_support/BuildUtils.rb"
 
 include FileTest
 require 'albacore'
@@ -7,11 +7,27 @@ require 'albacore'
 RESULTS_DIR = "results"
 BUILD_NUMBER_BASE = "0.4.0"
 PRODUCT = "FubuMVC"
-COPYRIGHT = 'Copyright 2008 Chad Myers, Jeremy D. Miller, Joshua Flanagan, et al. All rights reserved.';
+COPYRIGHT = 'Copyright 2008-2010 Chad Myers, Jeremy D. Miller, Joshua Flanagan, et al. All rights reserved.';
 COMMON_ASSEMBLY_INFO = 'src/CommonAssemblyInfo.cs';
 CLR_TOOLS_VERSION = "v4.0.30319"
 
 props = { :stage => "build", :stage35 => "build35", :artifacts => "artifacts" }
+
+desc "Displays a list of tasks"
+task :help do
+  taskHash = Hash[*(`rake.bat -T`.split(/\n/).collect { |l| l.match(/rake (\S+)\s+\#\s(.+)/).to_a }.collect { |l| [l[1], l[2]] }).flatten] 
+ 
+  indent = "                          "
+  
+  puts "rake #{indent}#Runs the 'default' task"
+  
+  taskHash.each_pair do |key, value|
+    if key.nil?  
+      next
+    end
+    puts "rake #{key}#{indent.slice(0, indent.length - key.length)}##{value}"
+  end
+end
 
 desc "Compiles, unit tests, generates the database"
 task :all => [:default]
@@ -48,6 +64,8 @@ end
 desc "Prepares the working directory for a new build"
 task :clean do
 	#TODO: do any other tasks required to clean/prepare the working directory
+	FileUtils.rm_rf props[:stage]
+	FileUtils.rm_rf props[:stage35]
 	Dir.mkdir props[:stage] unless exists?(props[:stage])
 	Dir.mkdir props[:artifacts] unless exists?(props[:artifacts])
 end
@@ -59,8 +77,12 @@ task :compile => [:clean, :version] do
   AspNetCompilerRunner.compile :webPhysDir => "src/FubuMVC.HelloSpark", :webVirDir => "localhost/xyzzyplugh"
   
   copyOutputFiles "src/FubuMVC.StructureMap/bin/#{COMPILE_TARGET}", "*.{dll,pdb}", props[:stage]
-  copyOutputFiles "src/FubuMVC.UI/bin/#{COMPILE_TARGET}", "FubuMVC.UI.{dll,pdb}", props[:stage]
   copyOutputFiles "src/Spark.Web.FubuMVC/bin/#{COMPILE_TARGET}", "*Spark*.{dll,pdb}", props[:stage]
+  copyOutputFiles "src/FubuLocalization/bin/#{COMPILE_TARGET}", "FubuLocalization.{dll,pdb}", props[:stage]
+  copyOutputFiles "src/FubuValidation/bin/#{COMPILE_TARGET}", "FubuValidation.{dll,pdb}", props[:stage]
+
+  copyOutputFiles "src/fubu/bin/#{COMPILE_TARGET}", "fubu.exe", props[:stage]
+  copyOutputFiles "src/FubuFastPack/bin/#{COMPILE_TARGET}", "FubuFastPack.{dll,pdb}", props[:stage]
 end
 
 desc "Compiles the app for .NET Framework 3.5"
@@ -76,7 +98,8 @@ task :compile35 do
   Dir.mkdir props[:stage35] unless exists?(props[:stage35])
   output_nix = output.gsub('\\', '/')
   copyOutputFiles "src/FubuMVC.StructureMap/#{output_nix}", "*.{dll,pdb}", props[:stage35]
-  copyOutputFiles "src/FubuMVC.UI/#{output_nix}", "FubuMVC.UI.{dll,pdb}", props[:stage35]
+  copyOutputFiles "src/FubuLocalization/#{output_nix}", "FubuLocalization.{dll,pdb}", props[:stage35]
+  copyOutputFiles "src/FubuValidation/#{output_nix}", "FubuValidation.{dll,pdb}", props[:stage35]
 end
 
 def copyOutputFiles(fromDir, filePattern, outDir)
@@ -91,7 +114,19 @@ task :test => [:unit_test]
 desc "Runs unit tests"
 task :unit_test => :compile do
   runner = NUnitRunner.new :compilemode => COMPILE_TARGET, :source => 'src', :platform => 'x86'
-  runner.executeTests ['FubuMVC.Tests', 'FubuCore.Testing', 'HtmlTags.Testing', 'Spark.Web.FubuMVC.Tests']
+  runner.executeTests ['FubuMVC.Tests', 'FubuCore.Testing', 'FubuLocalization.Tests', 'HtmlTags.Testing', 'Spark.Web.FubuMVC.Tests', 'FubuValidation.Tests', 'FubuFastPack.Testing']
+end
+
+
+desc "Runs the StoryTeller suite of end to end tests.  IIS must be running first"
+task :storyteller => [:compile] do
+  sh "lib/storyteller/StoryTellerRunner Storyteller.xml output/st-results.htm"
+end
+
+desc "Set up the virtual directories for the HelloWorld applications"
+task :virtual_dir => [:compile] do
+  sh "src/fubu/bin/#{COMPILE_TARGET}/fubu.exe createvdir src/FubuMVC.HelloWorld helloworld"
+  sh "src/fubu/bin/#{COMPILE_TARGET}/fubu.exe createvdir src/FubuMVC.HelloSpark hellospark"
 end
 
 desc "Target used for the CI server"

@@ -26,6 +26,23 @@ namespace FubuCore.Testing.Util
         }
 
         [Test]
+        public void on_addition_should_fire_when_a_cache_adds_something_from_its_on_missing_catch()
+        {
+            var list = new List<int>();
+            int x = 0;
+
+            cache.OnMissing = key => ++x;
+
+            cache.OnAddition = number => list.Add(number);
+
+            cache["a"] = 100;
+            cache["b"].ShouldEqual(1);
+            cache["c"].ShouldEqual(2);
+        
+            list.ShouldHaveTheSameElementsAs(100, 1, 2);
+        }
+
+        [Test]
         public void when_GetKey_not_set_should_throw()
         {
             typeof (NotImplementedException).ShouldBeThrownBy(() => cache.GetKey(2));
