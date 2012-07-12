@@ -143,10 +143,11 @@ namespace FubuCore.Binding
         {
             HttpRequestBase request = @base.Request;
 
-            AddLocator(RequestDataSource.Request, key => request[key]);
+            AddLocator(RequestDataSource.Request, 
+                key => request[key],
+                key => request.Form.AllKeys.Any(x => x.StartsWith(key)));
             AddLocator(RequestDataSource.File,
-                       key => request.Files[key],
-                       key => request.Form.AllKeys.Any(x => x.StartsWith(key)));
+                       key => request.Files[key]);
             AddLocator(RequestDataSource.Header, key => request.Headers[key]);
             AddLocator(RequestDataSource.RequestProperty, key => GetRequestProperty(request, key));
         }
